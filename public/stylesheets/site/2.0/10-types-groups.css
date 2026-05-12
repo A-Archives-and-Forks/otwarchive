@@ -158,12 +158,6 @@ dl.index dd .userstuff p {
   display: block;
 }
 
-/* contexts */
-
-form dl.index {
-  position: initial;
-}
-
 /* TYPES */
 
 a.rss span {
