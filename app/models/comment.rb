@@ -128,6 +128,8 @@ class Comment < ApplicationRecord
 
     attributes = {
       comment_type: comment_type,
+      key: ArchiveConfig.AKISMET_KEY,
+      blog: ArchiveConfig.AKISMET_NAME,
       user_ip: ip_address,
       user_agent: user_agent,
       user_role: user_role,
@@ -506,15 +508,19 @@ class Comment < ApplicationRecord
   end
 
   def spam?
-    AkismetClient.spam?(akismet_attributes)
+    return false unless %w[staging production].include?(Rails.env)
+
+    Akismetor.spam?(akismet_attributes)
   end
 
   def submit_spam
-    AkismetClient.submit_spam(akismet_attributes)
+    return unless approved && !is_deleted
+    
+    Rails.env.production? && Akismetor.submit_spam(akismet_attributes)
   end
 
   def submit_ham
-    AkismetClient.submit_ham(akismet_attributes)
+    Rails.env.production? && Akismetor.submit_ham(akismet_attributes)
   end
 
   def mark_as_spam!
